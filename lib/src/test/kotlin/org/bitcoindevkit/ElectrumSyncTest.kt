@@ -28,7 +28,7 @@ class ElectrumSyncTest {
                 regtestEnv.mine(2)
 
                 //Wait 8 second for mining to complete and for electrum to index the new blocks before scanning
-                delay(8.seconds)
+                //delay(8.seconds)
 
                 val electrumClient = ElectrumClient(ELECTRUM_REGTEST_URL)
                 val fullScanRequest: FullScanRequest = wallet.startFullScan().build()

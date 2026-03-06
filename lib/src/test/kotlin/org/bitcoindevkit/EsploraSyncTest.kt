@@ -28,7 +28,7 @@ class EsploraSyncTest {
                 regtestEnv.mine(2)
 
                 //Wait 8 second for mining to complete and for esplora to index the new blocks before scanning
-                delay(8.seconds)
+                //delay(8.seconds)
 
                 val esploraClient = EsploraClient(ESPLORA_REGTEST_URL)
                 val fullScanRequest: FullScanRequest = wallet.startFullScan().build()
