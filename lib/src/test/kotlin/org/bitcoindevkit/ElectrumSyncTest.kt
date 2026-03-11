@@ -24,13 +24,20 @@ class ElectrumSyncTest {
                 )
                 val newAddress = wallet.revealNextAddress(KeychainKind.EXTERNAL).address
 
-                regtestEnv.send(newAddress.toString(), 0.12345678, 2.0)
+                val txId = regtestEnv.send(newAddress.toString(), 0.12345678, 2.0)
                 regtestEnv.mine(2)
 
-                //Wait 8 second for mining to complete and for electrum to index the new blocks before scanning
-                delay(8.seconds)
-
                 val electrumClient = ElectrumClient(ELECTRUM_REGTEST_URL)
+                val txid = Txid.fromString(txId)
+
+                //Check that electrum has indexed the transaction before scanning
+                run{
+                    repeat(8) {
+                        if (runCatching { electrumClient.transactionGetRaw(txid) }.isSuccess) return@run
+                        delay(1.seconds)
+                    }
+                }
+
                 val fullScanRequest: FullScanRequest = wallet.startFullScan().build()
                 val update = electrumClient.fullScan(fullScanRequest, 10uL, 1uL,false)
 
@@ -39,6 +46,7 @@ class ElectrumSyncTest {
                 wallet.persist(conn)
 
                 val balance = wallet.balance().total.toSat()
+                println("Balance: $balance")
                 assert(balance > 0uL){
                     "Balance should be greater than zero, but was $balance"
                 }
